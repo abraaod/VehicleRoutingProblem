@@ -37,4 +37,13 @@ public class Node {
     public void setDemand(float demand) {
         this.demand = demand;
     }
+
+    @Override
+    public String toString() {
+        return "Node{" +
+                "coord_x=" + coord_x +
+                ", coord_y=" + coord_y +
+                ", demand=" + demand +
+                '}';
+    }
 }
