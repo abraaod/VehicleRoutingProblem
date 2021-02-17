@@ -13,8 +13,13 @@ public class Graph {
 
     List<Node> nodes;
 
+    List<Double> matrix;
+
     public Graph(){
         nodes = new ArrayList<>();
+        matrix = new ArrayList<>();
+        //the first element is always the depot and it has -1 distance
+        matrix.add(-1.0);
     }
 
     public Graph(String name, int capacity, int dimension, int deposit, List<Node> nodes) {
@@ -73,6 +78,11 @@ public class Graph {
                 ", dimension=" + dimension +
                 ", deposit=" + deposit +
                 ", nodes=" + nodes +
+                ", matrix=" + matrix +
                 '}';
+    }
+
+    public Double distance(Node a, Node b){
+        return Math.sqrt(Math.pow(a.coord_x - b.coord_x, 2) + Math.pow(a.coord_y - b.coord_y, 2));
     }
 }

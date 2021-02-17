@@ -42,12 +42,11 @@ public class InstanceReader {
                 }
                 i++;
             }
-            System.out.println(graph.toString());
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return null;
+        return graph;
     }
 }
