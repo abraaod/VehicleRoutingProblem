@@ -2,12 +2,12 @@ public class Edge {
 
     int a;
     int b;
-    float weight;
+    Double weight;
 
     public Edge() {
     }
 
-    public Edge(int a, int b, float weight) {
+    public Edge(int a, int b, Double weight) {
         this.a = a;
         this.b = b;
         this.weight = weight;
@@ -29,11 +29,11 @@ public class Edge {
         this.b = b;
     }
 
-    public float getWeight() {
+    public Double getWeight() {
         return weight;
     }
 
-    public void setWeight(float weight) {
+    public void setWeight(Double weight) {
         this.weight = weight;
     }
 }
