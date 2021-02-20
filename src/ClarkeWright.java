@@ -1,6 +1,6 @@
 import java.util.*;
 
-public class ClarkWright {
+public class ClarkeWright {
 
     public void findSolutionCW(Graph graph){
 

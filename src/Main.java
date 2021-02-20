@@ -6,7 +6,7 @@ public class Main {
         Graph graph = instanceReader.loadGraph(args[0]);
         //int dimension = graph.dimension;
 
-        ClarkWright cw = new ClarkWright();
+        ClarkeWright cw = new ClarkeWright();
         cw.findSolutionCW(graph);
 
     }
