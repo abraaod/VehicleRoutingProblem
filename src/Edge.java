@@ -36,4 +36,13 @@ public class Edge {
     public void setWeight(Double weight) {
         this.weight = weight;
     }
+
+    @Override
+    public String toString() {
+        return "Edge{" +
+                "a=" + a +
+                ", b=" + b +
+                ", weight=" + weight +
+                '}';
+    }
 }
