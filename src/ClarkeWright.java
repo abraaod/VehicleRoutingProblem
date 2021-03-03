@@ -3,14 +3,18 @@ import java.util.*;
 public class ClarkeWright {
 
     public void findSolutionCW(Graph graph){
-
+        long start = System.currentTimeMillis();
         for(int j = 1; j < graph.dimension; j++){
             Double distanceToDepot = graph.distance(graph.nodes.get(0), graph.nodes.get(j));
             graph.matrix.add(distanceToDepot);
         }
         List<Edge> savings = calculateSavings(graph);
         Routes routes =  generateRoutes(savings, graph);
+        long end = System.currentTimeMillis() - start;
         System.out.println(routes.toString());
+        System.out.println(routes.getDistance(graph));
+        System.out.println("Time(ms): " + end);
+        System.out.println("Number of trucks: " + routes.size());
     }
 
     private List<Edge> calculateSavings(Graph graph){
@@ -19,7 +23,6 @@ public class ClarkeWright {
 
         for(int i = 1; i < graph.dimension; i++){
             for(int j = i + 1; j < graph.dimension; j++){
-                //System.out.println(i + " " + j);
                 Double saving =  graph.matrix.get(i) +  graph.matrix.get(j) - graph.distance(graph.nodes.get(i), graph.nodes.get(j));
                 Edge e = new Edge(i, j, saving);
                 list.add(e);
@@ -41,10 +44,18 @@ public class ClarkeWright {
                 Node b = graph.nodes.get(e.b);
                 double demand = a.demand + b.demand;
                 List<Integer> list = new ArrayList<>();
-                list.add(e.a);
-                list.add(e.b);
                 if(demand <= graph.capacity){
+                    list.add(e.a);
+                    list.add(e.b);
                     routes.addRoute(list, demand);
+                } else {
+                    List<Integer> list_a = new ArrayList<>();
+                    list_a.add(e.a);
+                    routes.addRoute(list_a, a.demand);
+
+                    List<Integer> list_b = new ArrayList<>();
+                    list_b.add(e.a);
+                    routes.addRoute(list_b, a.demand);
                 }
             } else if (!routes.sameRoute(e.a, e.b)){
                 int i_a = routes.findRoute(e.a);
@@ -63,35 +74,12 @@ public class ClarkeWright {
                         routes.addRoute(list, graph.nodes.get(e.b).demand);
                         i_b = routes.lastIndex();
                     }
-
-                    if(routes.getDemand(i_a) + routes.getDemand(i_b) <= graph.capacity){
-                        //System.out.println(i_a + " " + i_b + " nos nós: " + e.a + " " + e.b);
-                        routes.unifyRoutes(i_a, i_b);
-                    }
+                }
+                if(routes.getDemand(i_a) + routes.getDemand(i_b) <= graph.capacity){
+                    routes.unifyRoutes(i_a, i_b);
                 }
 
             }
-//            if(temp_weight <= graph.capacity){
-//                if(!hash.contains(e.a) && !hash.contains(e.b)){
-//                    aux.add(e.a);
-//                    aux.add(e.b);
-//
-//                    hash.add(e.a);
-//                    hash.add(e.b);
-//
-//                    weight += graph.nodes.get(e.a).demand + graph.nodes.get(e.b).demand;
-//                    c++;
-//                }
-//                pq.poll();
-//            } else {
-//                for(Integer a : aux){
-//                    System.out.print(a + " ");
-//                }
-//                System.out.println("(" + weight + ")");
-//                routes.add(aux);
-//                aux.clear();
-//                weight = 0;
-//            }
         }
 
         return routes;

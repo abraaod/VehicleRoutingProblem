@@ -15,6 +15,23 @@ public class Routes {
         this.routes = routes;
     }
 
+    public double getDistance(Graph graph){
+        double distance =  0.0;
+        for(Route r : routes){
+            if(r.list.size() > 1){
+                double temp_distance = graph.distance(graph.nodes.get(0), graph.nodes.get(r.list.get(0))) + graph.distance(graph.nodes.get(0), graph.nodes.get(r.list.get(r.list.size()-1)));
+                for(int i = 1; i < r.list.size(); i++){
+                    temp_distance += graph.distance(graph.nodes.get(r.list.get(i)), graph.nodes.get(r.list.get(i-1)));
+                }
+                distance += temp_distance;
+            } else {
+                distance += 2 * graph.matrix.get(r.list.get(0));
+            }
+        }
+
+        return distance;
+    }
+
     public int size(){
         return routes.size();
     }
