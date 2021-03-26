@@ -1,6 +1,6 @@
 import java.util.*;
 
-public class ClarkeWright {
+public class VRP {
 
     public void findSolutionCW(Graph graph){
         long start = System.currentTimeMillis();
