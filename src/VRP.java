@@ -54,7 +54,7 @@ public class VRP {
             }
             //elements.clear();
         }
-        Long end = (System.currentTimeMillis() - start)/1000/60;
+        Long end = (System.currentTimeMillis() - start);
         System.out.println(end);
         System.out.println(totalCost);
 
