@@ -1,0 +1,11 @@
+short/A-n05-k1.vrp
+short/A-n06-k1.vrp
+short/A-n07-k2.vrp
+short/A-n08-k2.vrp
+short/A-n09-k3.vrp
+short/A-n10-k2.vrp
+short/A-n11-k2.vrp
+short/A-n12-k2.vrp
+short/A-n13-k2.vrp
+short/A-n14-k2.vrp
+short/A-n15-k2.vrp
