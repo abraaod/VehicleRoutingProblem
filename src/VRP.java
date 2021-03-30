@@ -20,11 +20,9 @@ public class VRP {
     }
 
     public void findSolutionBacktracking(Graph graph){
-//        for(int j = 1; j < graph.dimension; j++){
-//            Double distanceToDepot = graph.distance(graph.nodes.get(0), graph.nodes.get(j));
-//            graph.matrix.add(distanceToDepot);
-//        }
+
         Long start = System.currentTimeMillis();
+        //Inicializa listas para lookup
         LinkedHashSet<Integer> visited = new LinkedHashSet<>();
 
         LinkedHashSet<Integer> elements = new LinkedHashSet<>();
@@ -33,6 +31,7 @@ public class VRP {
         Double demand = 0.0;
         Double totalCost = 0.0;
 
+        //Aplica op algoritmo de backtraacking para todos os nós ou até que todos estejam em uma rota
         for(int i = 1; i < graph.dimension; i++){
             elements = backtracking(graph, visited, i, demand, elements, added);
 
@@ -44,15 +43,12 @@ public class VRP {
 
             visited.clear();
             visited.addAll(elements);
-            //list.add()
             added.addAll(elements);
-            //list.add(elements);
-            //visited.add(i);
-            //System.out.println("Elementos visitados: " + visited);
+
+            //Quebra o laço se todos os nós já estiverem em suas rotas
             if(added.size() + 1 == graph.dimension){
                 break;
             }
-            //elements.clear();
         }
         Long end = (System.currentTimeMillis() - start);
         System.out.println(end);
@@ -62,6 +58,7 @@ public class VRP {
 
     public LinkedHashSet<Integer> backtracking(Graph graph, LinkedHashSet<Integer> visited, int currentPos, Double demand, LinkedHashSet<Integer> elements, HashSet<Integer> added){
 
+        //Verifica se a restrição de capacidade é quebrada ou se todos os nós foram visitados
         if(demand + graph.nodes.get(currentPos).demand > graph.capacity || visited.size()+1 == graph.dimension){
 
             Double actualCost = 0.0;
@@ -74,16 +71,14 @@ public class VRP {
             LinkedHashSet<Integer> aux = new LinkedHashSet<>(visited);
             aux.removeAll(added);
 
-            //System.out.println(aux);
-
             for(Integer node : aux){
                 actualCost += graph.distance(graph.nodes.get(actualNode), graph.nodes.get(node));
                 actualNode = node;
             }
 
             actualCost += graph.distance(graph.nodes.get(actualNode), graph.nodes.get(0));
+            //Verifica se a rota encontrada é a menor, se sim atualiza
             if(actualCost < min_cost){
-                //System.out.println(aux);
                 min_cost = actualCost;
                 return aux;
             }
@@ -92,10 +87,10 @@ public class VRP {
             }
         } else{
             demand += graph.nodes.get(currentPos).demand;
-           // System.out.println(demand +  " adding position: " + currentPos);
             visited.add(currentPos);
         }
 
+        //Algoritmo de backtracking
         for(int i = 1; i < graph.dimension; i++){
             if(!visited.contains(i)){
                 visited.add(i);
@@ -106,61 +101,7 @@ public class VRP {
 
         return elements;
     }
-
-//    public HashSet<Integer> backtracking(Graph graph, SortedSet<Integer> visited, int currentPos, int size, Double demand, HashSet<Integer> elements, HashSet<Integer> added){
-//
-//        if(demand + graph.nodes.get(currentPos).demand > graph.capacity || visited.size()+1 == size){
-//            //System.out.println(demand + " in position " + currentPos );
-//            Double actualCost = 0.0;
-//            Integer startNode = 0;
-//
-//            if(visited.size()+1 < size){
-//               visited.remove(currentPos);
-//            }
-//
-//            HashSet<Integer> aux = new HashSet<>();
-//            aux.addAll(visited);
-//            aux.removeAll(added);
-//
-//            for(Integer node : aux){
-//                actualCost += graph.distance(graph.nodes.get(startNode), graph.nodes.get(node));
-//                startNode = node;
-//            }
-//
-//            actualCost += graph.distance(graph.nodes.get(startNode), graph.nodes.get(0));
-//            if(actualCost < min_cost){
-//                //cost = actualCost;
-//                demand = 0.0;
-//                //if(elements.size() > 0)
-//                elements.clear();
-//                min_cost = actualCost;
-//
-//                for(Integer node : aux){
-//                    demand += graph.nodes.get(node).demand;
-//                    elements.add(node);
-//                }
-//                //pair.setCost(actualCost);
-//                //pair.setElements(elements);
-//                return elements;
-//            } else {
-//                return elements;
-//            }
-//
-//        } else if(visited.size() > 0){
-//            demand += graph.nodes.get(currentPos).demand;
-//            visited.add(currentPos);
-//        }
-//
-//        for(int i = 1;  i < size; i++){
-//            if(!visited.contains(i)){
-//                visited.add(i);
-//                elements = backtracking(graph, visited, i, size,demand, elements, added);
-//                visited.remove(i);
-//            }
-//        }
-//        return elements;
-//    }
-
+    //Método para cálculo dos savings
     private List<Edge> calculateSavings(Graph graph){
 
         List<Edge> list = new ArrayList<>();
@@ -177,17 +118,20 @@ public class VRP {
         return list;
     }
 
+    //Método para gerar as possíveis rotas. O número de rotas geradas é igual ao número de caminhões necessários.
     private Routes generateRoutes(List<Edge> pq, Graph graph){
 
         Routes routes = new Routes();
-
+        //Roda enquanto houverem elemento na lista
         while(!pq.isEmpty()){
             Edge e = pq.remove(0);
+            //Testa se os nós não pertencem a nenhuma rota
             if(routes.findRoute(e.a) == -1 && routes.findRoute(e.b) == -1) {
                 Node a = graph.nodes.get(e.a);
                 Node b = graph.nodes.get(e.b);
                 double demand = a.demand + b.demand;
                 List<Integer> list = new ArrayList<>();
+                //Tenta combinar os dois nós em uma única rota, senão cria rotas para cada um dos nós
                 if(demand <= graph.capacity){
                     list.add(e.a);
                     list.add(e.b);
@@ -201,10 +145,11 @@ public class VRP {
                     list_b.add(e.a);
                     routes.addRoute(list_b, a.demand);
                 }
+                //Testa se os nós estão em rotas diferentes ou se há um deles que ainda não possui rota
             } else if (!routes.sameRoute(e.a, e.b)){
                 int i_a = routes.findRoute(e.a);
                 int i_b = routes.findRoute(e.b);
-
+                //Verifica se algum dos nós ainda não tem rota e adiciona o mesmo a uma
                 if(i_a != -1 || i_b != -1){
                     if(i_a == -1){
                         List<Integer> list = new ArrayList<>();
@@ -219,10 +164,10 @@ public class VRP {
                         i_b = routes.lastIndex();
                     }
                 }
+                //Tenta unificar as rotas cujos dois nós fazem parte
                 if(routes.getDemand(i_a) + routes.getDemand(i_b) <= graph.capacity){
                     routes.unifyRoutes(i_a, i_b);
                 }
-
             }
         }
 
@@ -237,31 +182,4 @@ class EdgeComparator implements Comparator<Edge>{
         return Double.compare(b.weight,a.weight);
     }
 
-}
-
-class Pair {
-
-    private HashSet<Integer> elements;
-    private Double cost;
-
-    public Pair(HashSet<Integer> elements, Double cost) {
-        this.elements = elements;
-        this.cost = cost;
-    }
-
-    public HashSet<Integer> getElements() {
-        return elements;
-    }
-
-    public void setElements(HashSet<Integer> elements) {
-        this.elements = elements;
-    }
-
-    public Double getCost() {
-        return cost;
-    }
-
-    public void setCost(Double cost) {
-        this.cost = cost;
-    }
 }
