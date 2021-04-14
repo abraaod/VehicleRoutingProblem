@@ -11,7 +11,8 @@ public class Main {
 
         VRP vrp = new VRP();
         vrp.findSolutionCW(graph);
-        vrp.findSolutionBacktracking(graph);
+        //vrp.findSolutionBacktracking(graph);
+        vrp.findSolutionGRASP(graph);
 
 //        SortedSet<Integer> teste = new TreeSet<>();
 //        teste.add(3);

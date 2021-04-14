@@ -56,6 +56,129 @@ public class VRP {
 
     }
 
+    public void findSolutionGRASP(Graph graph){
+        List<Edge> savings = calculateSavings(graph);
+        HashSet<Integer> visited = new HashSet<>();
+
+        Double sumCost = 0.0;
+        while(visited.size() < graph.dimension-1) {
+
+            List<Integer> solution = new ArrayList<>(greedyRandomized(savings, graph, visited));
+            List<Integer> auxSolution = solution;
+
+            Double solutionCost = getCostLocal(auxSolution, graph);
+
+            System.out.println("Custo inicial: " + solutionCost + " e " + solution);
+
+            Double actualCost = solutionCost;
+            Double auxCost = solutionCost;
+
+            boolean search = true;
+
+            List<Integer> bestsolution = new ArrayList<>();
+
+            while(search){
+
+                bestsolution = localSearch(auxSolution, graph, actualCost);
+                auxCost = getCostLocal(bestsolution, graph);
+
+                if(auxCost < actualCost){
+                     actualCost = auxCost;
+                     System.out.println("Continua tentando");
+                } else {
+                    search = false;
+                }
+            }
+
+            if(actualCost < solutionCost){
+                System.out.println("Melhorou e o resultado foi de:" + solution + "\npara: " + bestsolution + " com custo de " + actualCost);
+                sumCost += actualCost;
+            } else {
+                System.out.println("Não Melhorou e o resultado foi de:" + solution + "\npara: " + bestsolution);
+                sumCost += solutionCost;
+            }
+
+            System.out.println("Custo total: " + sumCost);
+        }
+    }
+
+    public HashSet<Integer> greedyRandomized(List<Edge> savings, Graph graph, HashSet<Integer> visited){
+        Random randomGenerator =  new Random();
+        Double currentDemand = 0.0;
+
+        int upperBound = savings.size(), lowerBound = 0;
+
+        HashSet<Integer> inRoute = new HashSet<>();
+        HashSet<Integer> visitedLocal = new HashSet<>();
+        visitedLocal.addAll(visited);
+
+        while(visitedLocal.size() < graph.dimension-1){
+            int index = randomGenerator.nextInt(upperBound - lowerBound) + lowerBound;
+            Edge e = savings.get(index);
+
+            if(!visitedLocal.contains(e.a)){
+                visitedLocal.add(e.a);
+                if((currentDemand + graph.nodes.get(e.a).demand) <= graph.capacity){
+                    inRoute.add(e.a);
+                    currentDemand += graph.nodes.get(e.a).demand;
+                }
+            }
+
+            if(!visitedLocal.contains(e.b)){
+                visitedLocal.add(e.b);
+                if((currentDemand + graph.nodes.get(e.b).demand) <= graph.capacity){
+                    inRoute.add(e.b);
+                    currentDemand += graph.nodes.get(e.b).demand;
+                }
+            }
+
+            savings.remove(index);
+            upperBound--;
+        }
+
+        visited.addAll(inRoute);
+        return inRoute;
+    }
+
+    public List<Integer> localSearch(List<Integer> solution, Graph graph, Double actualCost){
+        List<Integer> actualSolution = new ArrayList<>(solution);
+        List<Integer> auxSolution = actualSolution;
+
+
+        if(actualSolution.size() > 1){
+            for(int i = 0; i < actualSolution.size()-1; i++){
+                int aux = auxSolution.get(i);
+                auxSolution.set(i, auxSolution.get(i+1));
+                auxSolution.set(i+1, aux);
+
+                Double auxCost = getCostLocal(auxSolution, graph);
+                if(auxCost < actualCost){
+                    actualSolution = auxSolution;
+                    actualCost = auxCost;
+                }
+
+                auxSolution = new ArrayList<>(solution);
+            }
+        } else {
+            return actualSolution;
+        }
+        return actualSolution;
+    }
+
+    public Double getCostLocal(List<Integer> solution, Graph graph){
+
+        int actualNode = 0;
+        Double cost =  0.0;
+        for(Integer i : solution){
+            cost += graph.distance(graph.nodes.get(actualNode), graph.nodes.get(i));
+            actualNode = i;
+        }
+
+        cost +=graph.distance(graph.nodes.get(actualNode), graph.nodes.get(0));
+
+        return cost;
+    }
+
     public LinkedHashSet<Integer> backtracking(Graph graph, LinkedHashSet<Integer> visited, int currentPos, Double demand, LinkedHashSet<Integer> elements, HashSet<Integer> added){
 
         //Verifica se a restrição de capacidade é quebrada ou se todos os nós foram visitados
