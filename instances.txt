@@ -8,7 +8,7 @@ instances/A-n37-k6.vrp
 instances/A-n38-k5.vrp
 instances/A-n39-k5.vrp
 instances/A-n39-k6.vrp
-instances/A-n44-k7.vrp
+instances/A-n44-k6.vrp
 instances/A-n45-k6.vrp
 instances/A-n45-k7.vrp
 instances/A-n46-k7.vrp

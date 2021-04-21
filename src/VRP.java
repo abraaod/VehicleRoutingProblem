@@ -1,3 +1,4 @@
+import javax.xml.crypto.dsig.keyinfo.KeyValue;
 import java.lang.module.ResolutionException;
 import java.util.*;
 
@@ -119,6 +120,7 @@ public class VRP {
         System.out.println("Time(ms): " + end);
         System.out.println("Custo total: " + sumCost);
         System.out.println("Soluções: " + listSolution);
+        System.out.println("Caminhões: " + listSolution.size());
     }
 
     public Double calculateDemand(List<Integer> list, Graph graph){
@@ -128,7 +130,7 @@ public class VRP {
         }
         return demand;
     }
-    public Double findSolutionGRASP(Graph graph){
+    public Pair<Double, Integer> findSolutionGRASP(Graph graph){
         List<Edge> savings = calculateSavings(graph);
         HashSet<Integer> visited = new HashSet<>();
 
@@ -174,7 +176,7 @@ public class VRP {
                 listSolution.add(solution);
             }
         }
-        return sumCost;
+        return new Pair(sumCost, listSolution.size());
     }
 
     public HashSet<Integer> greedyRandomized(List<Edge> savings, Graph graph, HashSet<Integer> visited){
@@ -379,4 +381,15 @@ class EdgeComparator implements Comparator<Edge>{
         return Double.compare(b.weight,a.weight);
     }
 
+}
+
+class Pair <K, T>{
+
+    public final K cost;
+    public final T trucks;
+
+    public Pair(K cost, T trucks) {
+        this.cost = cost;
+        this.trucks = trucks;
+    }
 }

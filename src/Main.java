@@ -13,6 +13,7 @@ public class Main {
 
         VRP vrp = new VRP();
         //vrp.findSolutionCW(graph);
+        System.out.println("GRASP com heurística de Clark & Wright para construção");
         vrp.findSolutionGRASPExperiment(graph);
         System.out.println("\n");
         //vrp.findSolutionBacktracking(graph);
@@ -21,12 +22,14 @@ public class Main {
 
         List<Double> mediaCusto = new ArrayList<>();
         List<Long> mediaTempo = new ArrayList<>();
+        List<Integer> mediaCaminhoes = new ArrayList<>();
 
         for(int i = 0; i < 1000; i++){
             Long start = System.currentTimeMillis();
-            Double cost =vrp.findSolutionGRASP(graph);
+            Pair p =vrp.findSolutionGRASP(graph);
             Long end = System.currentTimeMillis() - start;
 
+            Double cost = new Double(p.cost.toString());
             if(cost < minCost)
                 minCost = cost;
             if(cost > maxCost)
@@ -39,8 +42,11 @@ public class Main {
 
             mediaCusto.add(cost);
             mediaTempo.add(end);
+            mediaCaminhoes.add(new Integer(p.trucks.toString()));
 
         }
+
+        System.out.println("GRASP");
 
         System.out.println("Média de custo de: ");
         Double desvio = desvioPadraoCusto(mediaCusto);
@@ -48,6 +54,10 @@ public class Main {
 
         System.out.println("Média de tempo de: ");
         desvio = desvioPadrao(mediaTempo);
+        System.out.println("Com desvio de: " + desvio);
+
+        System.out.println("Média de caminhões de: ");
+        desvio = desvioPadraoCaminhoes(mediaCaminhoes);
         System.out.println("Com desvio de: " + desvio);
 
         System.out.println("Menor tempo de: " + minTime + " e maior tempo de: " + maxTime);
@@ -66,6 +76,13 @@ public class Main {
         double media = numeros.stream().mapToInt(Long::intValue).average().orElse(0);
         double mediaDesvios = numeros.stream().mapToDouble(i -> Math.pow(i - media, 2)).average().orElse(0);
         System.out.println(media + " (ms)");
+        return Math.sqrt(mediaDesvios);
+    }
+
+    public static double desvioPadraoCaminhoes(List<Integer> numeros) {
+        double media = numeros.stream().mapToInt(Integer::intValue).average().orElse(0);
+        double mediaDesvios = numeros.stream().mapToDouble(i -> Math.pow(i - media, 2)).average().orElse(0);
+        System.out.println(media);
         return Math.sqrt(mediaDesvios);
     }
 }
