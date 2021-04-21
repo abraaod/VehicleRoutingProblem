@@ -1,3 +1,4 @@
+import java.lang.module.ResolutionException;
 import java.util.*;
 
 public class VRP {
@@ -19,9 +20,19 @@ public class VRP {
         System.out.println("Number of trucks: " + routes.size());
     }
 
+    public Routes CWGeneration(Graph graph){
+        for(int j = 1; j < graph.dimension; j++){
+            Double distanceToDepot = graph.distance(graph.nodes.get(0), graph.nodes.get(j));
+            graph.matrix.add(distanceToDepot);
+        }
+        List<Edge> savings = calculateSavings(graph);
+        Routes routes =  generateRoutes(savings, graph);
+        return routes;
+    }
+
     public void findSolutionBacktracking(Graph graph){
 
-        Long start = System.currentTimeMillis();
+        long start = System.currentTimeMillis();
         //Inicializa listas para lookup
         LinkedHashSet<Integer> visited = new LinkedHashSet<>();
 
@@ -50,17 +61,81 @@ public class VRP {
                 break;
             }
         }
-        Long end = (System.currentTimeMillis() - start);
+        long end = (System.currentTimeMillis() - start);
         System.out.println(end);
         System.out.println(totalCost);
 
     }
 
-    public void findSolutionGRASP(Graph graph){
+    public void findSolutionGRASPExperiment(Graph graph){
+        long start = System.currentTimeMillis();
+        List<List<Integer>> listSolution = new ArrayList<>();
+
+        Double sumCost = 0.0;
+
+        Routes routes = CWGeneration(graph);
+        List<List<Integer>> listSolutionAux = routes.solution();
+
+        for(int i = 0; i < listSolutionAux.size(); i++) {
+
+            List<Integer> solution = listSolutionAux.get(i);
+            List<Integer> auxSolution = solution;
+
+            Double solutionCost = getCostLocal(auxSolution, graph);
+
+            //System.out.println("Custo inicial: " + solutionCost + " e a rota é: " + solution);
+
+            Double actualCost = solutionCost;
+            Double auxCost = solutionCost;
+
+            boolean search = true;
+
+            List<Integer> bestsolution = new ArrayList<>();
+
+            while(search){
+
+                bestsolution = localSearch(auxSolution, graph, actualCost);
+                auxCost = getCostLocal(bestsolution, graph);
+
+                if(auxCost < actualCost){
+                    actualCost = auxCost;
+                } else {
+                    search = false;
+                }
+            }
+
+            if(actualCost < solutionCost){
+                //System.out.println("Melhorou e o resultado foi de:" + solution + "\npara: " + bestsolution + " com custo de " + actualCost);
+                listSolution.add(new ArrayList<>(bestsolution));
+                sumCost += actualCost;
+            } else {
+                //System.out.println("Não Melhorou e o resultado permaneceu de:" + solution + "\nao invés de: " + bestsolution);
+                listSolution.add(new ArrayList<>(solution));
+                sumCost += solutionCost;
+            }
+        }
+
+        long end = System.currentTimeMillis() - start;
+        System.out.println("Time(ms): " + end);
+        System.out.println("Custo total: " + sumCost);
+        System.out.println("Soluções: " + listSolution);
+    }
+
+    public Double calculateDemand(List<Integer> list, Graph graph){
+        Double demand = 0.0;
+        for(int i = 0; i < list.size(); i++){
+            demand += graph.nodes.get(list.get(i)).getDemand();
+        }
+        return demand;
+    }
+    public Double findSolutionGRASP(Graph graph){
         List<Edge> savings = calculateSavings(graph);
         HashSet<Integer> visited = new HashSet<>();
 
         Double sumCost = 0.0;
+
+        List<List<Integer>> listSolution = new ArrayList<>();
+
         while(visited.size() < graph.dimension-1) {
 
             List<Integer> solution = new ArrayList<>(greedyRandomized(savings, graph, visited));
@@ -68,7 +143,7 @@ public class VRP {
 
             Double solutionCost = getCostLocal(auxSolution, graph);
 
-            System.out.println("Custo inicial: " + solutionCost + " e " + solution);
+            //System.out.println("Custo inicial: " + solutionCost + " e a rota é: " + solution);
 
             Double actualCost = solutionCost;
             Double auxCost = solutionCost;
@@ -84,22 +159,22 @@ public class VRP {
 
                 if(auxCost < actualCost){
                      actualCost = auxCost;
-                     System.out.println("Continua tentando");
                 } else {
                     search = false;
                 }
             }
 
             if(actualCost < solutionCost){
-                System.out.println("Melhorou e o resultado foi de:" + solution + "\npara: " + bestsolution + " com custo de " + actualCost);
+                //System.out.println("Melhorou e o resultado foi de:" + solution + "\npara: " + bestsolution + " com custo de " + actualCost);
                 sumCost += actualCost;
+                listSolution.add(bestsolution);
             } else {
-                System.out.println("Não Melhorou e o resultado foi de:" + solution + "\npara: " + bestsolution);
+                //System.out.println("Não Melhorou e o resultado permaneceu de:" + solution + "\nao invés de: " + bestsolution);
                 sumCost += solutionCost;
+                listSolution.add(solution);
             }
-
-            System.out.println("Custo total: " + sumCost);
         }
+        return sumCost;
     }
 
     public HashSet<Integer> greedyRandomized(List<Edge> savings, Graph graph, HashSet<Integer> visited){
@@ -131,9 +206,8 @@ public class VRP {
                     currentDemand += graph.nodes.get(e.b).demand;
                 }
             }
-
             savings.remove(index);
-            upperBound--;
+            upperBound = savings.size();
         }
 
         visited.addAll(inRoute);
