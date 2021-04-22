@@ -74,6 +74,7 @@ public class VRP {
 
         Double sumCost = 0.0;
 
+        //Gera a lista inicial de rotas, usando a heurística de Clark & Wright
         Routes routes = CWGeneration(graph);
         List<List<Integer>> listSolutionAux = routes.solution();
 
@@ -84,7 +85,7 @@ public class VRP {
 
             Double solutionCost = getCostLocal(auxSolution, graph);
 
-            //System.out.println("Custo inicial: " + solutionCost + " e a rota é: " + solution);
+            System.out.println("Custo inicial: " + solutionCost + " e a rota é: " + solution);
 
             Double actualCost = solutionCost;
             Double auxCost = solutionCost;
@@ -93,6 +94,7 @@ public class VRP {
 
             List<Integer> bestsolution = new ArrayList<>();
 
+            //Aplica o algoritmo de busca local até que não seja possível melhorar a solução
             while(search){
 
                 bestsolution = localSearch(auxSolution, graph, actualCost);
@@ -105,12 +107,13 @@ public class VRP {
                 }
             }
 
+            //Verifica se houve um ganho com o algoritmo de busca e caso exista apresenta a nova rota
             if(actualCost < solutionCost){
-                //System.out.println("Melhorou e o resultado foi de:" + solution + "\npara: " + bestsolution + " com custo de " + actualCost);
+                System.out.println("Melhorou e o resultado foi de:" + solution + "\npara: " + bestsolution + " com custo de " + actualCost);
                 listSolution.add(new ArrayList<>(bestsolution));
                 sumCost += actualCost;
             } else {
-                //System.out.println("Não Melhorou e o resultado permaneceu de:" + solution + "\nao invés de: " + bestsolution);
+                System.out.println("Não Melhorou e o resultado permaneceu de:" + solution + "\nao invés de: " + bestsolution);
                 listSolution.add(new ArrayList<>(solution));
                 sumCost += solutionCost;
             }
@@ -131,6 +134,7 @@ public class VRP {
         return demand;
     }
     public Pair<Double, Integer> findSolutionGRASP(Graph graph){
+        //Gera a lista inicial de nós que será usada para contruir as soluções e as RCL's
         List<Edge> savings = calculateSavings(graph);
         HashSet<Integer> visited = new HashSet<>();
 
@@ -138,14 +142,16 @@ public class VRP {
 
         List<List<Integer>> listSolution = new ArrayList<>();
 
+        //Roda enquanto houver pelo menos um nó sem rota
         while(visited.size() < graph.dimension-1) {
 
+            //Solução inicial obtida usado uma algoritmo guloso e aleatório
             List<Integer> solution = new ArrayList<>(greedyRandomized(savings, graph, visited));
             List<Integer> auxSolution = solution;
 
             Double solutionCost = getCostLocal(auxSolution, graph);
 
-            //System.out.println("Custo inicial: " + solutionCost + " e a rota é: " + solution);
+            System.out.println("Custo inicial: " + solutionCost + " e a rota é: " + solution);
 
             Double actualCost = solutionCost;
             Double auxCost = solutionCost;
@@ -154,6 +160,7 @@ public class VRP {
 
             List<Integer> bestsolution = new ArrayList<>();
 
+            //Aplica o algoritmo de busca local até que não seja possível melhorar a solução
             while(search){
 
                 bestsolution = localSearch(auxSolution, graph, actualCost);
@@ -166,16 +173,19 @@ public class VRP {
                 }
             }
 
+            //Verifica se houve um ganho com o algoritmo de busca e caso exista apresenta a nova rota
             if(actualCost < solutionCost){
-                //System.out.println("Melhorou e o resultado foi de:" + solution + "\npara: " + bestsolution + " com custo de " + actualCost);
+                System.out.println("Melhorou e o resultado foi de:" + solution + "\npara: " + bestsolution + " com custo de " + actualCost);
                 sumCost += actualCost;
                 listSolution.add(bestsolution);
             } else {
-                //System.out.println("Não Melhorou e o resultado permaneceu de:" + solution + "\nao invés de: " + bestsolution);
+                System.out.println("Não Melhorou e o resultado permaneceu de:" + solution + "\nao invés de: " + bestsolution);
                 sumCost += solutionCost;
                 listSolution.add(solution);
             }
         }
+
+        //Retorna o custo e número de caminhões necessários
         return new Pair(sumCost, listSolution.size());
     }
 
