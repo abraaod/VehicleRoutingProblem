@@ -1,3 +1,4 @@
+import java.awt.image.AreaAveragingScaleFilter;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -110,6 +111,14 @@ public class Routes {
         return "Routes{" +
                 "routes=\n" + routes +
                 '}';
+    }
+
+    public List<List<Integer>> solution(){
+        List<List<Integer>> solution = new ArrayList<>();
+        for(Route r: routes){
+            solution.add(new ArrayList<>(r.list));
+        }
+        return solution;
     }
 }
 
